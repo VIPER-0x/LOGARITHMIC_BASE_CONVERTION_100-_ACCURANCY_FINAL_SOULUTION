@@ -1,0 +1,99 @@
+using System;
+
+class BaseConverter
+{
+    static void Main()
+    {
+        double number = 457.25;
+        int baseToConvert = 8;
+
+        // Convert to base 8
+        string base8Result = ConvertToBase(number, baseToConvert);
+        Console.WriteLine($"The number {number} in base {baseToConvert} is: {base8Result}");
+
+        // Inverse operation: Convert back to base 10
+        double reconstructedNumber = ConvertFromBase(base8Result, baseToConvert);
+        Console.WriteLine($"The number {base8Result} in base {baseToConvert} is: {reconstructedNumber}");
+
+        // Calculate accuracy
+        double accuracy = Math.Abs(number / reconstructedNumber) * 100;
+        Console.WriteLine($"Accuracy of the conversion: {accuracy}%");
+    }
+
+    static string ConvertToBase(double number, int baseToConvert)
+    {
+        // Split the number into integer and fractional parts
+        int integerPart = (int)number;
+        double fractionalPart = number - integerPart;
+
+        // Convert the integer part
+        string integerBase = ConvertIntegerToBase(integerPart, baseToConvert);
+
+        // Convert the fractional part
+        string fractionalBase = ConvertFractionToBase(fractionalPart, baseToConvert);
+
+        return integerBase + fractionalBase;
+    }
+
+    static string ConvertIntegerToBase(int number, int baseToConvert)
+    {
+        if (number == 0) return "0";
+
+        string result = "";
+        while (number > 0)
+        {
+            int remainder = number % baseToConvert;
+            result = remainder.ToString() + result;
+            number /= baseToConvert;
+        }
+
+        return result;
+    }
+
+    static string ConvertFractionToBase(double fraction, int baseToConvert)
+    {
+        string result = ".";
+        int count = 0;
+
+        while (fraction > 0 && count < 6) // Limit to 6 digits for precision
+        {
+            fraction *= baseToConvert;
+            int integerPart = (int)fraction;
+            result += integerPart.ToString();
+            fraction -= integerPart;
+            count++;
+        }
+
+        return result;
+    }
+
+    static double ConvertFromBase(string baseValue, int baseToConvert)
+    {
+        // Split the base value into integer and fractional parts
+        string[] parts = baseValue.Split('.');
+        double integerPart = ConvertIntegerFromBase(parts[0], baseToConvert);
+        double fractionalPart = parts.Length > 1 ? ConvertFractionFromBase(parts[1], baseToConvert) : 0;
+
+        return integerPart + fractionalPart;
+    }
+
+    static double ConvertIntegerFromBase(string integerPart, int baseToConvert)
+    {
+        double result = 0;
+        for (int i = 0; i < integerPart.Length; i++)
+        {
+            result = result * baseToConvert + (integerPart[i] - '0');
+        }
+        return result;
+    }
+
+    static double ConvertFractionFromBase(string fractionPart, int baseToConvert)
+    {
+        double result = 0;
+        for (int i = 0; i < fractionPart.Length; i++)
+        {
+            result += (fractionPart[i] - '0') / Math.Pow(baseToConvert, i + 1);
+        }
+        return result;
+    }
+}
